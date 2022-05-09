@@ -2,10 +2,11 @@ import os
 import subprocess
 import ffmpeg
 
+
 class Convert:
 
     def __init__(self, input_path: str):
-        
+
         output_name = input_path.split('.')[0]
         self.input_path = input_path
         self.output_path = f"{output_name}_converted.gif"
@@ -17,7 +18,8 @@ class Convert:
 
     def generate_palette(self, stream, reserve_transparency: bool):
 
-        stream = ffmpeg.filter(stream, filter_name='palettegen', reserve_transparent=str(reserve_transparency))
+        stream = ffmpeg.filter(
+            stream, filter_name='palettegen', reserve_transparent=str(reserve_transparency))
         stream = ffmpeg.output(stream, self.output_palette)
         stream = ffmpeg.overwrite_output(stream)
         ffmpeg.run(stream)
@@ -48,20 +50,23 @@ class Convert:
 
     def optimize_gif(self, optimisation_level: int):
 
-        subprocess.run(['gifsicle', f'-O{optimisation_level}', self.output_path, '-o', self.output_path])
+        subprocess.run(
+            ['gifsicle', f'-O{optimisation_level}', self.output_path, '-o', self.output_path])
         self.optimisation_level = optimisation_level
 
     def compress_gif(self, lossy: int):
 
-        subprocess.run(['gifsicle', self.output_path, f'--lossy={lossy}', '-o', self.output_path])
+        subprocess.run(['gifsicle', self.output_path,
+                       f'--lossy={lossy}', '-o', self.output_path])
         self.compression_level = lossy
 
     def print_output_info(self) -> tuple[int, float, str, int]:
 
-        os.system('cls' if os.name=='nt' else 'clear')
+        os.system('cls' if os.name == 'nt' else 'clear')
 
         output_probe = ffmpeg.probe(self.output_path)
-        output_video_info = next(stream for stream in output_probe['streams'] if stream['codec_type'] == 'video')
+        output_video_info = next(
+            stream for stream in output_probe['streams'] if stream['codec_type'] == 'video')
 
         output_fps = self.get_video_fps(output_video_info)
         output_duration = self.get_video_duration(output_video_info)
@@ -71,5 +76,5 @@ class Convert:
         title = "VIDEO HAS BEEN SUCCESSFULLY CONVERTED"
         print(title)
         print("="*len(title))
-        
+
         return output_fps, output_duration, output_resolution, output_frames
